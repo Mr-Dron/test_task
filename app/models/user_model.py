@@ -14,3 +14,7 @@ class Users(Base):
     description = Column(Text, nullable=True)
 
     is_active = Column(Boolean, default=True)
+
+    groups_roles = relationship("GroupMembers", back_populates="user")
+    created_groups = relationship("Groups", back_populates="creator")
+    created_posts = relationship("Posts", back_populates="creator")
