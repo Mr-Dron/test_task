@@ -3,6 +3,7 @@ from sqlalchemy import select
 
 from app.models import Roles
 
+# заполение таблицы ролей 
 async def filling_db(db: AsyncSession):
 
     roles_list = [

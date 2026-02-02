@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from fastapi import HTTPException
 
-from app.models import *
+from app.models import Users
 
 async def get_user_by_email(user_email: str, db: AsyncSession):
 

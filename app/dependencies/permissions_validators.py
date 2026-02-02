@@ -7,6 +7,7 @@ from app.models import *
 from app.dependencies.dependencies import get_session, get_current_user
 
 
+# проверка прав
 def check_permission(access_level: int):
     async def checker(group_id: int,
                       user: Users=Depends(get_current_user),

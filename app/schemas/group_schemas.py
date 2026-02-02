@@ -5,7 +5,7 @@ from datetime import datetime
 
 from app.validatos.schemas_validators.value_validators import ValueValidatorMixin
 
-class GroupCreate(BaseModel, ValueError):
+class GroupCreate(BaseModel, ValueValidatorMixin):
     title: str
     description: Optional[str] = None
 
@@ -15,7 +15,7 @@ class GroupUpdate(BaseModel):
 
 class GroupAddMember(BaseModel):
     email: Optional[str] = None
-    id: Optional[str] = None
+    id: Optional[int] = None
     role_id: int 
 
 class GroupOutFull(BaseModel):

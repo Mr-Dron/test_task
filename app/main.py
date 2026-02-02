@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from contextlib import asynccontextmanager
 
-from app.routers import *
+from app.routers import users, groups, posts, roles
 from app.db.populating_db import filling_db
 
 

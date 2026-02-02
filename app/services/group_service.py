@@ -5,9 +5,9 @@ from fastapi import HTTPException
 
 from datetime import datetime
 
-from app.models import *
-from app.schemas import *
-from app.services.helpers import *
+from app.models import Groups, Users, GroupMembers
+from app.schemas import group_schemas
+from app.services.helpers import group_helpers, user_helpers
 
 
 async def group_create(group_data: group_schemas.GroupCreate, current_user: Users, db: AsyncSession):
@@ -32,7 +32,7 @@ async def group_create(group_data: group_schemas.GroupCreate, current_user: User
 
 async def group_update(group_id: int, group_data: group_schemas.GroupUpdate, db: AsyncSession):
 
-    new_data = group_data.model_dump()
+    new_data = group_data.model_dump(exclude_unset=True)
 
     stmt = (
         update(Groups).
@@ -53,7 +53,8 @@ async def add_member(group_id: int, user_data: group_schemas.GroupAddMember, db:
 
 
     if user_data.email:
-        user_data.id = user_helpers.get_user_by_email(user_email=user_data.email, db=db)
+        user = await user_helpers.get_user_by_email(user_email=user_data.email, db=db)
+        user_data.id = user.id
 
     if not user_data.id:
         raise HTTPException(status_code=400, detail="Parameters noot passed")

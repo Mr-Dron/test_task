@@ -44,6 +44,6 @@ class CorrectPasswordValidatorMixin:
     def validate_pass(self):
         
         if self.password != self.repeated_password:
-            raise ValueError("Passwords must be odinakovie))") #TODO нормальный перевод
+            raise ValueError("Passwords must be the same))") 
 
         return self

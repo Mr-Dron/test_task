@@ -3,7 +3,7 @@ from sqlalchemy import select, update, delete
 
 from fastapi import HTTPException
 
-from app.models import *
+from app.models import Posts, Users
 from app.schemas import post_schemas
 
 async def create_post(group_id: int, post_data: post_schemas.PostCreate, current_user: Users, db: AsyncSession):
@@ -24,7 +24,7 @@ async def create_post(group_id: int, post_data: post_schemas.PostCreate, current
 
 async def update_post(post_id: int, post_data: post_schemas.PostUpdate, db: AsyncSession):
 
-    data = post_data.model_dump()
+    data = post_data.model_dump(exclude_unset=True)
 
     stmt = (
         update(Posts)

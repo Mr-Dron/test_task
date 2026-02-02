@@ -11,7 +11,7 @@ class Posts(Base):
     likes = Column(Integer, default=0)
 
     creator_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"))
-    group_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"))
+    group_id = Column(Integer, ForeignKey("groups.id", ondelete="CASCADE"))
 
     creator = relationship("Users", back_populates="created_posts")
     group = relationship("Groups", back_populates="posts")

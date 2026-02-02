@@ -8,8 +8,9 @@ from app.db.database import AsyncSessionLocal
 from app.models import Users, Tokens
 from app.config.security import verify_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login/")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login/swag/")
 
+# контекст менеджер сессии
 async def get_session() -> AsyncSession:
     async with AsyncSessionLocal () as session:
         try:
@@ -21,16 +22,11 @@ async def get_session() -> AsyncSession:
         finally:
             await session.close()
 
-
+# получение текущего пользователя 
 async def get_current_user(token: str=Depends(oauth2_scheme),
                            db: AsyncSession=Depends(get_session)) -> Users:
-    
-    await check_token_in_db(token=token, db=db)
 
     payload = verify_access_token(token)
-
-    if not payload or payload["type"] != "access":
-        raise ValueError("Invalid token")
     
     user_id = payload["sub"]
 
@@ -41,19 +37,4 @@ async def get_current_user(token: str=Depends(oauth2_scheme),
 
     return current_user
 
-
-async def check_token_in_db(token: str, db: AsyncSession):
-
-    stmt = (
-        select(Tokens)
-        .where(Tokens.token == token)
-    )
-
-    result = (await db.execute(stmt)).scalar_one_or_none()
-
-    if not result:
-        raise ValueError("Invalid Token")
     
-
-async def get_token(token: str=Depends(oauth2_scheme)):
-    return token
