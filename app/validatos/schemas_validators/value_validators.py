@@ -20,7 +20,7 @@ class PasswordValidatorMixin:
 
 class ValueValidatorMixin:
 
-    veriables = ["first_name", "last_name"]
+    veriables = ["first_name", "last_name", "title"]
 
     @model_validator(mode="after")
     def velidate_value(self):

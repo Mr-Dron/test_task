@@ -2,6 +2,8 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 
+from fastapi import HTTPException
+
 from app.config.settings import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -32,9 +34,9 @@ def verify_access_token(token: str):
         payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
     
     except JWTError:
-        raise ValueError("Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token")
     
     if payload["type"] != "access":
-        raise ValueError("Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     return payload
