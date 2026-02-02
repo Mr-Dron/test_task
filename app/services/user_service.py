@@ -3,15 +3,14 @@ from sqlalchemy import select, update, delete
 
 from fastapi import HTTPException
 
-from app.schemas import *
-from app.models import *
+from app.schemas import user_schemas
+from app.models import Users, Tokens
 from app.config import security
 
 
 async def create_user(user_data: user_schemas.UserRegistration, db: AsyncSession):
 
     hashed_pass = security.hash_password(user_data.password)
-
     data = user_data.model_dump()
 
     data.pop("password")
@@ -28,6 +27,7 @@ async def create_user(user_data: user_schemas.UserRegistration, db: AsyncSession
 
 async def login_user(login_data: user_schemas.UserLogin, db: AsyncSession):
 
+    print(login_data.email)
     stmt = (
         select(Users)
         .where(Users.email == login_data.email)
@@ -39,21 +39,36 @@ async def login_user(login_data: user_schemas.UserLogin, db: AsyncSession):
         raise ValueError("User not found")
     
     access_token = security.create_access_token(user.id)
-
-    token = Tokens(
-        user_id=user.id,
-        token=access_token
-    )
-
-    db.add(token)
+    refresh_token = security.create_refresh_token(user_id=user.id, db=db)
 
     return {"access_token": access_token,
+            "refresh_token": refresh_token,
+            "type_token": "bearer"}
+
+async def login_user_swag(login_data: user_schemas.UserLoginSwag, db: AsyncSession):
+
+    print(login_data.username)
+    stmt = (
+        select(Users)
+        .where(Users.email == login_data.username)
+    )
+
+    user = (await db.execute(stmt)).scalar_one_or_none()
+
+    if not user:
+        raise ValueError("User not found")
+    
+    access_token = security.create_access_token(user.id)
+    refresh_token = security.create_refresh_token(user_id=user.id, db=db)
+
+    return {"access_token": access_token,
+            "refresh_token": refresh_token,
             "type_token": "bearer"}
 
 
 async def update_user(user_data: user_schemas.UserUpdate, current_user: Users, db: AsyncSession):
 
-    new_data = user_data.model_dump()
+    new_data = user_data.model_dump(exclude_unset=True)
 
     stmt = (
         update(Users)
@@ -108,3 +123,11 @@ async def delete_user(current_user: Users, db: AsyncSession):
     return {"message": "user deleted"}
 
 
+async def refresh_access_token(refresh_token: str, db: AsyncSession):
+
+    token_data = await security.verify_refresh_token(token=refresh_token, db=db)
+
+    access_token = security.create_access_token(user_id=token_data.user_id)
+
+    return {"access_token": access_token,
+            "type_token": "bearer"}

@@ -20,7 +20,7 @@ class PasswordValidatorMixin:
 
 class ValueValidatorMixin:
 
-    veriables = ["first_name", "last_name"]
+    veriables = ["first_name", "last_name", "title"]
 
     @model_validator(mode="after")
     def velidate_value(self):
@@ -44,6 +44,6 @@ class CorrectPasswordValidatorMixin:
     def validate_pass(self):
         
         if self.password != self.repeated_password:
-            raise ValueError("Passwords must be odinakovie))") #TODO нормальный перевод
+            raise ValueError("Passwords must be the same))") 
 
         return self
