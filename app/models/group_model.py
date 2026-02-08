@@ -11,7 +11,8 @@ class Groups(Base):
 
     title = Column(String(100), nullable=False, index=True)
     description = Column(String(255), nullable=True)
-    create_at = Column(DateTime, default=datetime.now(timezone.utc))
+    create_at = Column(DateTime)
+    delete_at = Column(DateTime, index=True)
 
     is_active = Column(Boolean, default=True, index=True)
 

@@ -15,6 +15,7 @@ async def scheduler():
             
             if now.hour == 3 and now.minute == 0:
                 await checks.logout_inactive_users()
+                await checks.delet_inactive_users()
         
         except Exception as exc:
             print(f"[SCHEDULER ERROR] {exc}")

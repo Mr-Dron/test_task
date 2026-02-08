@@ -17,6 +17,7 @@ class Users(Base):
     
     online = Column(Boolean, default=False, index=True)
     create_at = Column(DateTime, default=datetime.now(timezone.utc))
+    delete_at = Column(DateTime, index=True)
 
     last_seen = Column(DateTime, default=datetime.now(timezone.utc), index=True)
     is_active = Column(Boolean, default=True)

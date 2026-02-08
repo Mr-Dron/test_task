@@ -3,6 +3,8 @@ from sqlalchemy import select, update, delete
 
 from fastapi import HTTPException
 
+from datetime import datetime, timezone
+
 from app.schemas import user_schemas
 from app.dependencies.dependencies import set_user_status
 from app.models import Users, Tokens
@@ -18,6 +20,7 @@ async def create_user(user_data: user_schemas.UserRegistration, db: AsyncSession
     data.pop("repeated_password")
 
     data["hashed_password"] = hashed_pass
+    data["is_active"] = True
 
     new_user = Users(**data)
 
@@ -121,9 +124,10 @@ async def delete_user(current_user: Users, db: AsyncSession):
     await db.execute(stmt)
 
     current_user.is_active = False
+    current_user.delete_at = datetime.now(timezone.utc)
 
     db.add(current_user)
-    await db.commit
+    await db.commit()
     
     return {"message": "user deleted"}
 
