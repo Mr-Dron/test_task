@@ -3,18 +3,20 @@ from sqlalchemy import select, update, delete
 
 from fastapi import HTTPException
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.models import Groups, Users, GroupMembers
 from app.schemas import group_schemas
 from app.services.helpers import group_helpers, user_helpers
+from app.dependencies.dependencies import entity_activity_check
 
 
 async def group_create(group_data: group_schemas.GroupCreate, current_user: Users, db: AsyncSession):
 
     data = group_data.model_dump()
-    data["create_at"] = datetime.now()
+    data["create_at"] = datetime.now(timezone.utc)
     data["creator_id"] = current_user.id
+    data["is_active"] = True
 
     new_group = Groups(**data)
 
@@ -51,13 +53,14 @@ async def group_update(group_id: int, group_data: group_schemas.GroupUpdate, db:
 
 async def add_member(group_id: int, user_data: group_schemas.GroupAddMember, db: AsyncSession):
 
-
     if user_data.email:
         user = await user_helpers.get_user_by_email(user_email=user_data.email, db=db)
         user_data.id = user.id
 
+    await entity_activity_check(id_field="user_id", entity=Users)(db=db, user_id=user_data.id)
+
     if not user_data.id:
-        raise HTTPException(status_code=400, detail="Parameters noot passed")
+        raise HTTPException(status_code=400, detail="Parameters not passed")
 
     new_member = GroupMembers(group_id=group_id,
                               user_id=user_data.id,
@@ -71,8 +74,10 @@ async def add_member(group_id: int, user_data: group_schemas.GroupAddMember, db:
 async def delete_group(group_id: int, db: AsyncSession):
 
     stmt = (
-        delete(Groups)
+        update(Groups)
         .where(Groups.id == group_id)
+        .values(is_active = False,
+                delete_at = datetime.now(timezone.utc))
         .returning(Groups)
     )
 

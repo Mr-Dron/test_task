@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     #Online
     TIME_SINCE_LAST_REQUEST: int
+    DAYS_FOR_REMOVAL: int
 
     
 

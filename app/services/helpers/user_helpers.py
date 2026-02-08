@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from fastapi import HTTPException
 
@@ -9,7 +9,8 @@ async def get_user_by_email(user_email: str, db: AsyncSession):
 
     stmt = (
         select(Users)
-        .where(Users.email == user_email)
+        .where(and_(Users.email == user_email,
+                    Users.is_active.is_(True)))
     )
 
     user = (await db.execute(stmt)).scalar_one_or_none()

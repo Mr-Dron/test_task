@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, and_
 
 from fastapi import HTTPException
+
+from datetime import datetime, timezone
 
 from app.models import Posts, Users
 from app.schemas import post_schemas
@@ -43,8 +45,10 @@ async def update_post(post_id: int, post_data: post_schemas.PostUpdate, db: Asyn
 async def delete_post(post_id: int, db: AsyncSession):
 
     stmt = (
-        delete(Posts)
+        update(Posts)
         .where(Posts.id == post_id)
+        .values(is_active = False,
+                delete_at = datetime.now(timezone.utc))
         .returning(Posts)
     )
 
@@ -59,7 +63,8 @@ async def get_all_posts_in_group(group_id: int, db: AsyncSession):
     
     stmt = (
         select(Posts)
-        .where(Posts.group_id == group_id)
+        .where(and_(Posts.group_id == group_id,
+                    Posts.is_active.is_(True)))
     )
 
     posts = (await db.execute(stmt)).scalars().all()

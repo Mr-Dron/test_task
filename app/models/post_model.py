@@ -10,6 +10,7 @@ class Posts(Base):
     description = Column(Text, nullable=False)
     likes = Column(Integer, default=0)
     create_at = Column(DateTime, nullable=False)
+    delete_at = Column(DateTime, index=True)
 
     is_active = Column(Boolean, default=True, index=True)
 
